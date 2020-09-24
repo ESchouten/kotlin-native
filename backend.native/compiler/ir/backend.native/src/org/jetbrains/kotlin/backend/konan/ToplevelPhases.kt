@@ -423,6 +423,7 @@ val toplevelPhase: CompilerPhase<*, Unit, Unit> = namedUnitPhase(
                 destroySymbolTablePhase then
                 copyDefaultValuesToActualPhase then
                 serializerPhase then
+                specialBackendChecksPhase then
                 namedUnitPhase(
                         name = "Backend",
                         description = "All backend",
@@ -453,6 +454,7 @@ internal fun PhaseConfig.konanPhasesConfig(config: KonanConfig) {
         disableIf(dependenciesLowerPhase, config.produce == CompilerOutputKind.LIBRARY)
         disableUnless(entryPointPhase, config.produce == CompilerOutputKind.PROGRAM)
         disableUnless(exportInternalAbiPhase, config.produce.isCache)
+        disableIf(backendCodegen, config.produce == CompilerOutputKind.LIBRARY)
         disableIf(bitcodePhase, config.produce == CompilerOutputKind.LIBRARY)
         disableUnless(bitcodeOptimizationPhase, config.produce.involvesLinkStage)
         disableUnless(linkBitcodeDependenciesPhase, config.produce.involvesLinkStage)
@@ -470,6 +472,5 @@ internal fun PhaseConfig.konanPhasesConfig(config: KonanConfig) {
         disableIf(psiToIrPhase, isDescriptorsOnlyLibrary)
         disableIf(destroySymbolTablePhase, isDescriptorsOnlyLibrary)
         disableIf(copyDefaultValuesToActualPhase, isDescriptorsOnlyLibrary)
-        disableIf(backendCodegen, isDescriptorsOnlyLibrary)
     }
 }
