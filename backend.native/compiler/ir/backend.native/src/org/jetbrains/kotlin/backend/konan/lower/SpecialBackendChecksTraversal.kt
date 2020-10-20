@@ -428,7 +428,10 @@ private class BackendChecker(val context: Context, val irFile: IrFile) : IrEleme
                 getUnboundReferencedFunction(expression.getValueArgument(2)!!)
                         ?: reportError(expression, "${callee.fqNameForIrSerialization} must take an unbound, non-capturing function or lambda")
             }
-            else -> { }
+            else -> if (callee.symbol == symbols.createCleaner) {
+                getUnboundReferencedFunction(expression.getValueArgument(1)!!)
+                        ?: reportError(expression, "${callee.fqNameForIrSerialization} must take an unbound, non-capturing function or lambda")
+            }
         }
     }
 
