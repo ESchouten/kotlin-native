@@ -428,9 +428,22 @@ private class BackendChecker(val context: Context, val irFile: IrFile) : IrEleme
                 getUnboundReferencedFunction(expression.getValueArgument(2)!!)
                         ?: reportError(expression, "${callee.fqNameForIrSerialization} must take an unbound, non-capturing function or lambda")
             }
-            else -> if (callee.symbol == symbols.createCleaner) {
-                getUnboundReferencedFunction(expression.getValueArgument(1)!!)
-                        ?: reportError(expression, "${callee.fqNameForIrSerialization} must take an unbound, non-capturing function or lambda")
+            else -> when (callee.symbol) {
+                symbols.createCleaner ->
+                    getUnboundReferencedFunction(expression.getValueArgument(1)!!)
+                            ?: reportError(expression, "${callee.fqNameForIrSerialization} must take an unbound, non-capturing function or lambda")
+                symbols.immutableBlobOf -> {
+                    val args = expression.getValueArgument(0) as IrVararg
+                    if (args.elements.any { it is IrSpreadElement })
+                        reportError(args, "no spread elements allowed here")
+                    args.elements.forEach {
+                        if (it !is IrConst<*>)
+                            reportError(args, "all elements of binary blob must be constants")
+                        val value = it.value as Short
+                        if (value < 0 || value > 0xff)
+                            reportError(it, "incorrect value for binary data: $value")
+                    }
+                }
             }
         }
     }
