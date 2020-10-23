@@ -119,8 +119,8 @@ class KonanConfig(val project: Project, val configuration: CompilerConfiguration
         if (shouldCoverLibraries || shouldCoverSources) add("profileRuntime.bc")
         if (configuration.get(KonanConfigKeys.ALLOCATION_MODE) == "mimalloc") {
             if (!target.supportsMimallocAllocator()) {
-                configuration.report(CompilerMessageSeverity.STRONG_WARNING,
-                        "Mimalloc allocator isn't supported on target ${target.name}. Used standard mode.")
+                //configuration.report(CompilerMessageSeverity.STRONG_WARNING,
+                //        "Mimalloc allocator isn't supported on target ${target.name}. Used standard mode.")
                 add("std_alloc.bc")
             } else {
                 add("opt_alloc.bc")
